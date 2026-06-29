@@ -1,3 +1,3 @@
 module github.com/krelinga/go-xdiff
 
-go 1.24.13
+go 1.26.1
