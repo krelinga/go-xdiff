@@ -49,12 +49,12 @@ func TestDefault(t *testing.T) {
 			wantSame: true,
 		},
 		{
-			name:             "one nil returns wrapped error",
-			state:            stateWithPath,
-			left:             nil,
-			right:            1,
-			wantSame:         false,
-			wantErrSubstring: "one value is nil while the other is non-nil",
+			name:          "one nil is treated as a difference",
+			state:         &diff.State{Reporter: &testReporter{}, Path: stateWithPath.Path},
+			left:          nil,
+			right:         1,
+			wantSame:      false,
+			wantDifferent: 1,
 		},
 		{
 			name:     "comparable values equal",
