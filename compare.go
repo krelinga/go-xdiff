@@ -18,7 +18,7 @@ func (_ Compare) Diff(state *State, left, right any) (same bool, err error) {
 		return true, nil
 	}
 	if left == nil || right == nil {
-		return false, NewError(path, fmt.Errorf("left and right must both be nil or both be non-nil"))
+		return false, NewError(path, fmt.Errorf("one value is nil while the other is non-nil"))
 	}
 
 	leftType := reflect.TypeOf(left)
