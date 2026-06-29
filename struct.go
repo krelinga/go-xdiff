@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// Struct is a Differ for structs and pointers to structs.
+// Struct is a Differ for structs.
 type Struct struct {
 	Fields map[string]Differ
 }
@@ -21,12 +21,10 @@ func (s Struct) Diff(state *State, left, right any) (same bool, err error) {
 		}
 	}
 
-	leftIsNil := isNilStructValue(left)
-	rightIsNil := isNilStructValue(right)
-	if leftIsNil && rightIsNil {
+	if left == nil && right == nil {
 		return true, nil
 	}
-	if leftIsNil || rightIsNil {
+	if left == nil || right == nil {
 		state.Different()
 		return false, nil
 	}
@@ -76,32 +74,12 @@ func (s Struct) Diff(state *State, left, right any) (same bool, err error) {
 	return allSame, nil
 }
 
-func isNilStructValue(value any) bool {
-	if value == nil {
-		return true
-	}
-
-	valueReflect := reflect.ValueOf(value)
-	for valueReflect.Kind() == reflect.Pointer {
-		if valueReflect.IsNil() {
-			return true
-		}
-		valueReflect = valueReflect.Elem()
-	}
-
-	return false
-}
-
 func structValue(value any) (reflect.Value, reflect.Type, error) {
 	valueReflect := reflect.ValueOf(value)
 	valueType := valueReflect.Type()
-	for valueType.Kind() == reflect.Pointer {
-		valueReflect = valueReflect.Elem()
-		valueType = valueReflect.Type()
-	}
 
 	if valueType.Kind() != reflect.Struct {
-		return reflect.Value{}, nil, fmt.Errorf("value must be a struct or pointer to struct: %T", value)
+		return reflect.Value{}, nil, fmt.Errorf("value must be a struct: %T", value)
 	}
 
 	return valueReflect, valueType, nil

@@ -74,13 +74,13 @@ func TestStruct(t *testing.T) {
 			},
 		},
 		{
-			name:          "pointers to structs are supported",
+			name:          "pointers to structs return error",
 			differ:        diff.Struct{},
-			state:         &diff.State{Reporter: &testReporter{}},
+			state:         &diff.State{},
 			left:          &structFixture{Name: "same", Count: 1},
 			right:         &structFixture{Name: "same", Count: 2},
 			wantSame:      false,
-			wantDifferent: 1,
+			wantErrSubstr: "value must be a struct",
 		},
 		{
 			name:          "nil field differ returns error",
