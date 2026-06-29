@@ -49,7 +49,7 @@ func (suk SliceUnmatchedKey) DiffKey() string {
 	return fmt.Sprintf("slice unmatched index: %d", suk.Index)
 }
 
-// SliceKey represents a pair of matched elements in left and right slices, although not necessairly at the same index.
+// SliceKey represents a pair of matched elements in left and right slices, although not necessarily at the same index.
 type SliceKey struct {
 	LeftIndex, RightIndex int
 }

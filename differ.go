@@ -19,7 +19,7 @@ func (p Path) String() string {
 type Reporter interface {
 	// Called when starting a new layer in the nested hierarchy.
 	Push(key Key, left, right any)
-	// Called when finished with a layer in the nested hierarcy.
+	// Called when finished with a layer in the nested hierarchy.
 	Pop()
 
 	// Called to report an entry that is only present in the left side of the diff.
