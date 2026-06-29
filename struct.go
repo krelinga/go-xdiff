@@ -21,12 +21,8 @@ func (s Struct) Diff(state *State, left, right any) (same bool, err error) {
 		}
 	}
 
-	if left == nil && right == nil {
-		return true, nil
-	}
 	if left == nil || right == nil {
-		state.Different()
-		return false, nil
+		return false, NewError(state.Path, fmt.Errorf("left and right must not be nil"))
 	}
 
 	leftValue, leftType, err := structValue(left)
