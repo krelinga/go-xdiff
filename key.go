@@ -71,3 +71,10 @@ type RootKey struct {}
 func (_ RootKey) DiffKey() string {
 	return "root"
 }
+
+// PointerKey represents a pointer dereference in the diff path.
+type PointerKey struct {}
+
+func (_ PointerKey) DiffKey() string {
+	return "pointer dereference"
+}

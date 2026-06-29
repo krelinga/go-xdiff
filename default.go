@@ -26,6 +26,10 @@ func (_ Default) Diff(state *State, left, right any) (same bool, err error) {
 	rightType := reflect.TypeOf(right)
 	if leftType.Comparable() && rightType.Comparable() {
 		return Compare{}.Diff(state, left, right)
+	} else if leftType.Kind() == reflect.Pointer && rightType.Kind() == reflect.Pointer {
+		return Pointer{}.Diff(state, left, right)
+	} else if leftType.Kind() == reflect.Struct && rightType.Kind() == reflect.Struct {
+		return Struct{}.Diff(state, left, right)
 	}
 
 	return false, NewError(state.Path, fmt.Errorf("default comparisons are not supported for this type: left=%s right=%s", leftType, rightType))
