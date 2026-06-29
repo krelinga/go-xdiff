@@ -1,6 +1,6 @@
 package diff
 
-import fmt
+import "fmt"
 
 // FieldKey represents a field in a struct.
 type FieldKey struct {
@@ -24,8 +24,8 @@ type MapKey struct {
 	Key any
 }
 
-func (fk FieldKey) DiffKey() string {
-	return fmt.Sprintf("map key: %v", fk.Key)
+func (mk MapKey) DiffKey() string {
+	return fmt.Sprintf("map key: %v", mk.Key)
 }
 
 func NewMapKey(key any) MapKey {
@@ -50,7 +50,7 @@ func (suk SliceUnmatchedKey) DiffKey() string {
 }
 
 // SliceKey represents a pair of matched elements in left and right slices, although not necessairly at the same index.
-type SliceKey {
+type SliceKey struct {
 	LeftIndex, RightIndex int
 }
 
@@ -59,6 +59,10 @@ func NewSliceKey(leftIndex, rightIndex int) SliceKey {
 		LeftIndex: leftIndex,
 		RightIndex: rightIndex,
 	}
+}
+
+func (sk SliceKey) DiffKey() string {
+	return fmt.Sprintf("slice pair: left index %d, right index %d", sk.LeftIndex, sk.RightIndex)
 }
 
 // RootKey is used as a Key for the root of the diff operation.

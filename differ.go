@@ -9,7 +9,11 @@ type Key interface {
 type Path []Key
 
 func (p Path) String() string {
-	return strings.Join(" > ", []Key(p))
+	parts := make([]string, len(p))
+	for i, key := range p {
+		parts[i] = key.DiffKey()
+	}
+	return strings.Join(parts, " > ")
 }
 
 type Reporter interface {

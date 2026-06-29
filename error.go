@@ -1,5 +1,7 @@
 package diff
 
+import "fmt"
+
 // Error is used for the error return of Differ.Diff().
 //
 // It wraps the original error and also contains the path at which the error happened.
