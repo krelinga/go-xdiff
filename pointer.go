@@ -43,8 +43,5 @@ func (p Pointer) Diff(state *State, left, right any) (same bool, err error) {
 		elemDiffer = Default{}
 	}
 
-	state.Push(PointerKey{}, leftVal.Elem().Interface(), rightVal.Elem().Interface())
-	same, err = elemDiffer.Diff(state, leftVal.Elem().Interface(), rightVal.Elem().Interface())
-	state.Pop()
-	return same, err
+	return state.DiffChild(PointerKey{}, leftVal.Elem().Interface(), rightVal.Elem().Interface(), elemDiffer)
 }

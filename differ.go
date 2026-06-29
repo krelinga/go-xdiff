@@ -33,21 +33,27 @@ type Reporter interface {
 
 type State struct {
 	Reporter Reporter
-	Path Path
+	Path     Path
 }
 
-func (s *State) Push(key Key, left, right any) {
+func (s *State) push(key Key, left, right any) {
 	s.Path = append(s.Path, key)
 	if s.Reporter != nil {
 		s.Reporter.Push(key, left, right)
 	}
 }
 
-func (s *State) Pop() {
-	s.Path = s.Path[0:len(s.Path)-1]
+func (s *State) pop() {
+	s.Path = s.Path[0 : len(s.Path)-1]
 	if s.Reporter != nil {
 		s.Reporter.Pop()
 	}
+}
+
+func (s *State) DiffChild(key Key, left, right any, differ Differ) (same bool, err error) {
+	s.push(key, left, right)
+	defer s.pop()
+	return differ.Diff(s, left, right)
 }
 
 func (s *State) LeftOnly(key Key, left any) {
@@ -70,6 +76,6 @@ func (s *State) Different() {
 
 // Differs encapsulate the logic to diff various kinds of data.
 type Differ interface {
- // state will never be nil. 
+	// state will never be nil.
 	Diff(state *State, left, right any) (same bool, err error)
 }

@@ -56,9 +56,7 @@ func (s Struct) Diff(state *State, left, right any) (same bool, err error) {
 			fieldDiffer = differ
 		}
 
-		state.Push(fieldKey, leftField, rightField)
-		fieldSame, fieldErr := fieldDiffer.Diff(state, leftField, rightField)
-		state.Pop()
+		fieldSame, fieldErr := state.DiffChild(fieldKey, leftField, rightField, fieldDiffer)
 		if fieldErr != nil {
 			return false, fieldErr
 		}

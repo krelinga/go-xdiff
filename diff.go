@@ -4,6 +4,5 @@ func Diff(left, right any, differ Differ, reporter Reporter) (same bool, err err
 	s := &State{
 		Reporter: reporter,
 	}
-	s.Push(RootKey{}, left, right)
-	return differ.Diff(s, left, right)
+	return s.DiffChild(RootKey{}, left, right, differ)
 }
