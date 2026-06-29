@@ -6,7 +6,7 @@ import (
 )
 
 type Pointer struct {
-	Elem Differ
+	Elem      Differ
 	ByAddress bool
 }
 
@@ -21,7 +21,7 @@ func (p Pointer) Diff(state *State, left, right any) (same bool, err error) {
 	leftVal := reflect.ValueOf(left)
 	rightVal := reflect.ValueOf(right)
 
-	if leftVal.Kind() != reflect.Ptr || rightVal.Kind() != reflect.Ptr {
+	if leftVal.Kind() != reflect.Pointer || rightVal.Kind() != reflect.Pointer {
 		return false, NewError(state.Path, fmt.Errorf("left and right must be pointers"))
 	}
 
