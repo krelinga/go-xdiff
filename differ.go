@@ -68,6 +68,8 @@ func (s *State) Different() {
 	}
 }
 
+// Differs encapsulate the logic to diff various kinds of data.
 type Differ interface {
+ // state will never be nil. 
 	Diff(state *State, left, right any) (same bool, err error)
 }
