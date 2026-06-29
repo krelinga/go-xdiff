@@ -1,0 +1,42 @@
+package diff
+
+import (
+	"fmt"
+	"reflect"
+)
+
+// Compare is a Differ that compares comparable values of the same type using ==.
+type Compare struct{}
+
+func (_ Compare) Diff(state *State, left, right any) (same bool, err error) {
+	path := Path(nil)
+	if state != nil {
+		path = append(path, state.Path...)
+	}
+
+	if left == nil && right == nil {
+		return true, nil
+	}
+	if left == nil || right == nil {
+		return false, NewError(path, fmt.Errorf("left and right must both be nil or both be non-nil"))
+	}
+
+	leftType := reflect.TypeOf(left)
+	rightType := reflect.TypeOf(right)
+	if leftType != rightType {
+		return false, NewError(path, fmt.Errorf("left and right must have the same type: left=%s right=%s", leftType, rightType))
+	}
+
+	if !leftType.Comparable() {
+		return false, NewError(path, fmt.Errorf("type %s is not comparable", leftType))
+	}
+
+	if left == right {
+		return true, nil
+	}
+
+	if state != nil {
+		state.Different()
+	}
+	return false, nil
+}
