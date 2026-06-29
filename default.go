@@ -32,5 +32,5 @@ func (_ Default) Diff(state *State, left, right any) (same bool, err error) {
 		return Struct{}.Diff(state, left, right)
 	}
 
-	return false, NewError(state.Path, fmt.Errorf("default comparisons are not supported for this type: left=%s right=%s", leftType, rightType))
+	return false, WrapError(state.Path, fmt.Errorf("default comparisons are not supported for this type: left=%s right=%s", leftType, rightType))
 }

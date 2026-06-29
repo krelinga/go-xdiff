@@ -17,26 +17,26 @@ func (s Struct) Diff(state *State, left, right any) (same bool, err error) {
 
 	for fieldName, differ := range s.Fields {
 		if differ == nil {
-			return false, NewError(state.Path, fmt.Errorf("field differ for %q must not be nil", fieldName))
+			return false, WrapError(state.Path, fmt.Errorf("field differ for %q must not be nil", fieldName))
 		}
 	}
 
 	if left == nil || right == nil {
-		return false, NewError(state.Path, fmt.Errorf("left and right must not be nil"))
+		return false, WrapError(state.Path, fmt.Errorf("left and right must not be nil"))
 	}
 
 	leftValue, leftType, err := structValue(left)
 	if err != nil {
-		return false, wrapStructError(state, err)
+		return false, WrapError(state.Path, err)
 	}
 
 	rightValue, rightType, err := structValue(right)
 	if err != nil {
-		return false, wrapStructError(state, err)
+		return false, WrapError(state.Path, err)
 	}
 
 	if leftType != rightType {
-		return false, NewError(state.Path, fmt.Errorf("left and right must have the same type: left=%s right=%s", leftType, rightType))
+		return false, WrapError(state.Path, fmt.Errorf("left and right must have the same type: left=%s right=%s", leftType, rightType))
 	}
 
 	var defaultDiffer Differ = Default{}
@@ -77,12 +77,4 @@ func structValue(value any) (reflect.Value, reflect.Type, error) {
 	}
 
 	return valueReflect, valueType, nil
-}
-
-func wrapStructError(state *State, err error) error {
-	if err == nil {
-		return nil
-	}
-
-	return NewError(state.Path, err)
 }

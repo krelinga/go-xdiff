@@ -16,13 +16,13 @@ func (p Pointer) Diff(state *State, left, right any) (same bool, err error) {
 	}
 
 	if left == nil || right == nil {
-		return false, NewError(state.Path, fmt.Errorf("left and right must not be nil"))
+		return false, WrapError(state.Path, fmt.Errorf("left and right must not be nil"))
 	}
 	leftVal := reflect.ValueOf(left)
 	rightVal := reflect.ValueOf(right)
 
 	if leftVal.Kind() != reflect.Pointer || rightVal.Kind() != reflect.Pointer {
-		return false, NewError(state.Path, fmt.Errorf("left and right must be pointers"))
+		return false, WrapError(state.Path, fmt.Errorf("left and right must be pointers"))
 	}
 
 	if leftVal.IsNil() && rightVal.IsNil() {

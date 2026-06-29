@@ -7,13 +7,16 @@ import "fmt"
 // It wraps the original error and also contains the path at which the error happened.
 type Error struct {
 	Path Path
-	Err error
+	Err  error
 }
 
-func NewError(p Path, e error) Error {
+func WrapError(p Path, e error) error {
+	if e == nil {
+		return nil
+	}
 	return Error{
 		Path: p,
-		Err: e,
+		Err:  e,
 	}
 }
 

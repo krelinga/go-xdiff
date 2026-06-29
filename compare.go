@@ -24,11 +24,11 @@ func (_ Compare) Diff(state *State, left, right any) (same bool, err error) {
 	leftType := reflect.TypeOf(left)
 	rightType := reflect.TypeOf(right)
 	if leftType != rightType {
-		return false, NewError(state.Path, fmt.Errorf("left and right must have the same type: left=%s right=%s", leftType, rightType))
+		return false, WrapError(state.Path, fmt.Errorf("left and right must have the same type: left=%s right=%s", leftType, rightType))
 	}
 
 	if !leftType.Comparable() {
-		return false, NewError(state.Path, fmt.Errorf("type %s is not comparable", leftType))
+		return false, WrapError(state.Path, fmt.Errorf("type %s is not comparable", leftType))
 	}
 
 	if left == right {
