@@ -13,23 +13,21 @@ func (_ Compare) Diff(state *State, left, right any) (same bool, err error) {
 		return false, fmt.Errorf("state must not be nil")
 	}
 
-	path := append(Path(nil), state.Path...)
-
 	if left == nil && right == nil {
 		return true, nil
 	}
 	if left == nil || right == nil {
-		return false, NewError(path, fmt.Errorf("one value is nil while the other is non-nil"))
+		return false, NewError(state.Path, fmt.Errorf("one value is nil while the other is non-nil"))
 	}
 
 	leftType := reflect.TypeOf(left)
 	rightType := reflect.TypeOf(right)
 	if leftType != rightType {
-		return false, NewError(path, fmt.Errorf("left and right must have the same type: left=%s right=%s", leftType, rightType))
+		return false, NewError(state.Path, fmt.Errorf("left and right must have the same type: left=%s right=%s", leftType, rightType))
 	}
 
 	if !leftType.Comparable() {
-		return false, NewError(path, fmt.Errorf("type %s is not comparable", leftType))
+		return false, NewError(state.Path, fmt.Errorf("type %s is not comparable", leftType))
 	}
 
 	if left == right {
