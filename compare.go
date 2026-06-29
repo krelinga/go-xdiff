@@ -9,10 +9,11 @@ import (
 type Compare struct{}
 
 func (_ Compare) Diff(state *State, left, right any) (same bool, err error) {
-	path := Path(nil)
-	if state != nil {
-		path = append(path, state.Path...)
+	if state == nil {
+		return false, fmt.Errorf("state must not be nil")
 	}
+
+	path := append(Path(nil), state.Path...)
 
 	if left == nil && right == nil {
 		return true, nil
@@ -35,8 +36,6 @@ func (_ Compare) Diff(state *State, left, right any) (same bool, err error) {
 		return true, nil
 	}
 
-	if state != nil {
-		state.Different()
-	}
+	state.Different()
 	return false, nil
 }
