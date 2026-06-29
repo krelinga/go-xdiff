@@ -78,3 +78,18 @@ type PointerKey struct {}
 func (_ PointerKey) DiffKey() string {
 	return "pointer dereference"
 }
+
+type TransformKey struct {
+	// The name of the transform.
+	Name string
+}
+
+func (tk TransformKey) DiffKey() string {
+	return fmt.Sprintf("transform: %s", tk.Name)
+}
+
+func NewTransformKey(name string) TransformKey {
+	return TransformKey{
+		Name: name,
+	}
+}
