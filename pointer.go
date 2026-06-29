@@ -12,7 +12,7 @@ type Pointer struct {
 
 func (p Pointer) Diff(state *State, left, right any) (same bool, err error) {
 	if state == nil {
-		return false, NewError(state.Path, fmt.Errorf("state must not be nil"))
+		return false, fmt.Errorf("state must not be nil")
 	}
 
 	if left == nil || right == nil {
