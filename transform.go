@@ -2,7 +2,7 @@ package diff
 
 import "fmt"
 
-func Transform[T, U any](name string, left, right any, f func(T) U, differ Differ) Differ {
+func Transform[T, U any](name string, f func(T) U, differ Differ) Differ {
 	return transformDiffer[T, U]{
 		name:   name,
 		f:      f,
