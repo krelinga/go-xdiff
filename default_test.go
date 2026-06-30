@@ -7,22 +7,6 @@ import (
 	diff "github.com/krelinga/go-xdiff"
 )
 
-func counterEqual(t *testing.T, got diff.Counter, want diff.Counter) {
-	t.Helper()
-	if got.Total() != want.Total() {
-		t.Errorf("Total() = %d, want %d", got.Total(), want.Total())
-	}
-	if got.NumDifferent != want.NumDifferent {
-		t.Errorf("NumDifferent = %d, want %d", got.NumDifferent, want.NumDifferent)
-	}
-	if got.NumLeftOnly != want.NumLeftOnly {
-		t.Errorf("NumLeftOnly = %d, want %d", got.NumLeftOnly, want.NumLeftOnly)
-	}
-	if got.NumRightOnly != want.NumRightOnly {
-		t.Errorf("NumRightOnly = %d, want %d", got.NumRightOnly, want.NumRightOnly)
-	}
-}
-
 func TestDefault(t *testing.T) {
 	tests := []struct {
 		name             string
