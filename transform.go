@@ -1,6 +1,9 @@
 package diff
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 func Transform[T, U any](name string, f func(T) U, differ Differ) Differ {
 	return transformDiffer[T, U]{
@@ -43,5 +46,10 @@ func (t transformDiffer[T, U]) Diff(state *State, left, right any) (same bool, e
 		differ = Default{}
 	}
 
-	return state.DiffChild(NewTransformKey(t.name), leftTransformed, rightTransformed, differ)
+	key := NewTransformKey(t.name)
+	same, err = state.DiffChild(key, leftTransformed, rightTransformed, differ)
+	if _, ok := errors.AsType[Error](err); !ok {
+		err = WrapError(append(state.Path, key), err)
+	}
+	return same, err
 }

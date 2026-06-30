@@ -1,6 +1,7 @@
 package diff_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -100,15 +101,18 @@ func TestTransform(t *testing.T) {
 				}
 			},
 		},
-		// Surprising behavior: if a nested differ returns a plain error, Transform does not
-		// wrap it with the transform path context.
-		// {
-		// 	name:             "custom differ errors include transform key path",
-		// 	path:             diff.Path{diff.RootKey{}},
-		// 	left:             input{Value: 1},
-		// 	right:            input{Value: 1},
-		// 	wantErrSubstring: "transform: value",
-		// },
+		{
+			name: "custom differ errors include transform key path",
+			prepare: func() *recordingDiffer {
+				return &recordingDiffer{DelegateTo: fakeDiffer(func(_ *diff.State, _, _ any) (bool, error) {
+					return false, fmt.Errorf("unwrapped differ error")
+				})}
+			},
+			path:             diff.Path{diff.RootKey{}},
+			left:             input{Value: 1},
+			right:            input{Value: 1},
+			wantErrSubstring: "transform: value",
+		},
 	}
 
 	for _, tt := range tests {
