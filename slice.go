@@ -265,10 +265,8 @@ func (s Slice) Diff(state *State, left, right any) (same bool, err error) {
 		yieldSizeMatchups := func(larger, smaller []int) iter.Seq[sizeMatchup] {
 			return func(yield func(sizeMatchup) bool) {
 				for largerPerm := range permuteSlice(larger) {
-					for smallerPerm := range permuteSlice(smaller) {
-						if !yield(newSizeMatchup(largerPerm, smallerPerm)) {
-							return
-						}
+					if !yield(newSizeMatchup(largerPerm, smaller)) {
+						return
 					}
 				}
 			}
