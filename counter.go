@@ -19,7 +19,7 @@ func (c *Counter) RightOnly(_ Key, _ any) {
 	c.NumRightOnly++
 }
 
-func (_ *Counter) Push(_ Key, _, _ any) {}
+func (_ *Counter) Push(_ Key, _ string, _, _ any) {}
 func (_ *Counter) Pop()                 {}
 
 func (c *Counter) Total() int {

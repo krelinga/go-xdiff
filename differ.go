@@ -1,6 +1,9 @@
 package diff
 
-import "strings"
+import (
+	"reflect"
+	"strings"
+)
 
 type Key interface {
 	DiffKey() string
@@ -18,7 +21,7 @@ func (p Path) String() string {
 
 type Reporter interface {
 	// Called when starting a new layer in the nested hierarchy.
-	Push(key Key, left, right any)
+	Push(key Key, name string, left, right any)
 	// Called when finished with a layer in the nested hierarchy.
 	Pop()
 
@@ -36,10 +39,10 @@ type State struct {
 	Path     Path
 }
 
-func (s *State) push(key Key, left, right any) {
+func (s *State) push(key Key, name string, left, right any) {
 	s.Path = append(s.Path, key)
 	if s.Reporter != nil {
-		s.Reporter.Push(key, left, right)
+		s.Reporter.Push(key, name, left, right)
 	}
 }
 
@@ -50,8 +53,16 @@ func (s *State) pop() {
 	}
 }
 
+func differName(differ Differ) string {
+	value := reflect.ValueOf(differ)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+	return value.Type().String()
+}
+
 func (s *State) DiffChild(key Key, left, right any, differ Differ) (same bool, err error) {
-	s.push(key, left, right)
+	s.push(key, differName(differ), left, right)
 	defer s.pop()
 	return differ.Diff(s, left, right)
 }
