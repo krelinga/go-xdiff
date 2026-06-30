@@ -44,4 +44,17 @@ func ExampleWriterReporter() {
 	}
 
 	// Output:
+	// root diff.Default *diff_test.FooStruct
+	//   pointer dereference diff.Default diff_test.FooStruct
+	//     struct field: Age diff.Default int
+	//      ! 30
+	//      ! --
+	//      ! 31
+	//     struct field: Properties diff.Default map[string]string
+	//       map key: city diff.Default string
+	//        ! New York
+	//        ! -------------
+	//        ! San Francisco
+	//      + map key: hobby Photography
+	//
 }
