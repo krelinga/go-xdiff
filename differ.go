@@ -2,6 +2,7 @@ package diff
 
 import (
 	"reflect"
+	"slices"
 	"strings"
 )
 
@@ -17,6 +18,10 @@ func (p Path) String() string {
 		parts[i] = key.DiffKey()
 	}
 	return strings.Join(parts, " > ")
+}
+
+func PathEqual(a, b Path) bool {
+	return slices.Equal(a, b)
 }
 
 type Reporter interface {
