@@ -154,7 +154,6 @@ func (s Slice) Diff(state *State, left, right any) (same bool, err error) {
 			for _, leftIndex := range match.left {
 				reportLeftOnly(leftIndex)
 			}
-			allSame = false
 			continue
 		case len(match.left) == 1 && len(match.right) == 1:
 			leftIndex := match.left[0]
@@ -238,32 +237,38 @@ func (s Slice) Diff(state *State, left, right any) (same bool, err error) {
 			return func(yield func([]int) bool) {
 				if len(in) == 0 {
 					yield([]int{})
+					return
 				}
 
 				working := append([]int(nil), in...)
 
-				var build func(start int)
-				build = func(start int) {
+				var build func(start int) bool
+				build = func(start int) bool {
 					if start == len(working)-1 {
-						yield(append([]int(nil), working...))
-						return
+						return yield(append([]int(nil), working...))
 					}
 
 					for i := start; i < len(working); i++ {
 						working[start], working[i] = working[i], working[start]
-						build(start + 1)
+						stop := !build(start + 1)
 						working[start], working[i] = working[i], working[start]
+						if stop {
+							return false
+						}
 					}
+					return true
 				}
 
-				build(0)
+				_ = build(0)
 			}
 		}
 		yieldSizeMatchups := func(larger, smaller []int) iter.Seq[sizeMatchup] {
 			return func(yield func(sizeMatchup) bool) {
-				for perm := range permuteSlice(smaller) {
-					if !yield(newSizeMatchup(larger, perm)) {
-						return
+				for largerPerm := range permuteSlice(larger) {
+					for smallerPerm := range permuteSlice(smaller) {
+						if !yield(newSizeMatchup(largerPerm, smallerPerm)) {
+							return
+						}
 					}
 				}
 			}

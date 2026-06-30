@@ -117,15 +117,13 @@ func TestSlice(t *testing.T) {
 			wantSame:    false,
 			wantCounter: &diff.Counter{NumRightOnly: 1},
 		},
-		// Surprising behavior: this currently returns same=false even when the only unmatched
-		// entry is on the left and AllowLeftOnly=true.
-		// {
-		// 	name:     "left only can be allowed",
-		// 	differ:   diff.Slice{AllowLeftOnly: true},
-		// 	left:     []int{1, 2},
-		// 	right:    []int{1},
-		// 	wantSame: true,
-		// },
+		{
+			name:     "left only can be allowed",
+			differ:   diff.Slice{AllowLeftOnly: true},
+			left:     []int{1, 2},
+			right:    []int{1},
+			wantSame: true,
+		},
 		{
 			name:     "right only can be allowed",
 			differ:   diff.Slice{AllowRightOnly: true},
@@ -141,16 +139,14 @@ func TestSlice(t *testing.T) {
 			wantSame:    true,
 			wantCounter: &diff.Counter{},
 		},
-		// Surprising behavior: the inefficient matcher should minimize total diffs, but this
-		// case currently reports an avoidable element difference in addition to left-only.
-		// {
-		// 	name:        "inefficient key reports extra unmatched entry",
-		// 	differ:      diff.Slice{KeyFunc: diff.SliceKeyInefficient},
-		// 	left:        []int{1, 2, 3},
-		// 	right:       []int{3, 1},
-		// 	wantSame:    false,
-		// 	wantCounter: &diff.Counter{NumLeftOnly: 1},
-		// },
+		{
+			name:        "inefficient key reports extra unmatched entry",
+			differ:      diff.Slice{KeyFunc: diff.SliceKeyInefficient},
+			left:        []int{1, 2, 3},
+			right:       []int{3, 1},
+			wantSame:    false,
+			wantCounter: &diff.Counter{NumLeftOnly: 1},
+		},
 		{
 			name:             "element differ errors are wrapped at slice pair path",
 			differ:           diff.Slice{ElemDiffer: diff.Compare{}},
