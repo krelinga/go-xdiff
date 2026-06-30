@@ -61,11 +61,6 @@ func SliceKeyInefficient(_ int, _ any) (any, error) {
 	return nil, nil
 }
 
-type slicePair struct {
-	leftIndex  int
-	rightIndex int
-}
-
 func (s Slice) Diff(state *State, left, right any) (same bool, err error) {
 	if state == nil {
 		return false, fmt.Errorf("state must not be nil")
