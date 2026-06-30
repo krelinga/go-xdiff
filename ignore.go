@@ -4,5 +4,5 @@ package diff
 type Ignore struct{}
 
 func (_ Ignore) Diff(_ *State, _, _ any) (bool, error) {
-	return false, nil
+	return true, nil
 }

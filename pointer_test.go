@@ -75,13 +75,12 @@ func TestPointer(t *testing.T) {
 			wantSame:    false,
 			wantCounter: &diff.Counter{NumDifferent: 1},
 		},
-		// TODO: this is surprising behavior, wantSame should be true in this instance.
 		{
 			name:        "custom elem differ is used",
 			differ:      diff.Pointer{Elem: diff.Ignore{}},
 			left:        &one,
-			right:       &one,
-			wantSame:    false,
+			right:       &two,
+			wantSame:    true,
 			wantCounter: &diff.Counter{},
 		},
 		// TODO: add a test for the same value being stored at two different addresses.

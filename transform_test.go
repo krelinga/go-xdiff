@@ -78,13 +78,12 @@ func TestTransform(t *testing.T) {
 			wantSame:    false,
 			wantCounter: &diff.Counter{NumDifferent: 1},
 		},
-		// TODO: this is surprising behavior, wantSame should be true in this instance.
 		{
 			name:        "custom differ is used for transformed values",
 			differ:      diff.Transform("value", func(v input) int { return v.Value }, diff.Ignore{}),
 			left:        input{Value: 1},
-			right:       input{Value: 1},
-			wantSame:    false,
+			right:       input{Value: 2},
+			wantSame:    true,
 			wantCounter: &diff.Counter{},
 		},
 		{
