@@ -161,6 +161,19 @@ func (s Slice) Diff(state *State, left, right any) (same bool, err error) {
 			}
 			allSame = false
 			continue
+		case len(match.left) == 1 && len(match.right) == 1:
+			leftIndex := match.left[0]
+			rightIndex := match.right[0]
+			leftElem := leftVal.Index(leftIndex).Interface()
+			rightElem := rightVal.Index(rightIndex).Interface()
+			same, err := state.DiffChild(NewSliceKey(leftIndex, rightIndex), leftElem, rightElem, elemDiffer)
+			if err != nil {
+				return false, WrapError(state.Path, fmt.Errorf("error comparing left index %d and right index %d: %w", leftIndex, rightIndex, err))
+			}
+			if !same {
+				allSame = false
+			}
+			continue
 		}
 
 		// Compare matched elements in a way that minimizes the number of diffs reported.

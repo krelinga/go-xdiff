@@ -74,8 +74,8 @@ func TestDefault(t *testing.T) {
 		{
 			name:             "non comparable values return unsupported error",
 			state:            stateWithPath,
-			left:             []int{1},
-			right:            []int{1},
+			left:             func() {},
+			right:            func() {},
 			wantSame:         false,
 			wantErrSubstring: "default comparisons are not supported for this type",
 		},
