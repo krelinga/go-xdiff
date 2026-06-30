@@ -24,20 +24,19 @@ func counterEqual(t *testing.T, got diff.Counter, want diff.Counter) {
 }
 
 func TestDefault(t *testing.T) {
-	stateWithPath := &diff.State{Path: diff.Path{diff.RootKey{}}}
-
 	tests := []struct {
 		name             string
-		state            *diff.State
+		path             diff.Path
+		nilState         bool
 		left             any
 		right            any
 		wantSame         bool
 		wantErrSubstring string
-		wantDifferent    int
+		wantCounter      *diff.Counter
 	}{
 		{
 			name:             "nil state returns error",
-			state:            nil,
+			nilState:         true,
 			left:             1,
 			right:            1,
 			wantSame:         false,
@@ -45,37 +44,34 @@ func TestDefault(t *testing.T) {
 		},
 		{
 			name:     "both nil are equal",
-			state:    &diff.State{},
 			left:     nil,
 			right:    nil,
 			wantSame: true,
 		},
 		{
-			name:          "one nil is treated as a difference",
-			state:         &diff.State{Reporter: &diff.Counter{}, Path: stateWithPath.Path},
-			left:          nil,
-			right:         1,
-			wantSame:      false,
-			wantDifferent: 1,
+			name:        "one nil is treated as a difference",
+			path:        diff.Path{diff.RootKey{}},
+			left:        nil,
+			right:       1,
+			wantSame:    false,
+			wantCounter: &diff.Counter{NumDifferent: 1},
 		},
 		{
 			name:     "comparable values equal",
-			state:    &diff.State{},
 			left:     42,
 			right:    42,
 			wantSame: true,
 		},
 		{
-			name:          "comparable values different delegates and reports",
-			state:         &diff.State{Reporter: &diff.Counter{}},
-			left:          42,
-			right:         43,
-			wantSame:      false,
-			wantDifferent: 1,
+			name:        "comparable values different delegates and reports",
+			left:        42,
+			right:       43,
+			wantSame:    false,
+			wantCounter: &diff.Counter{NumDifferent: 1},
 		},
 		{
 			name:             "non comparable values return unsupported error",
-			state:            stateWithPath,
+			path:             diff.Path{diff.RootKey{}},
 			left:             func() {},
 			right:            func() {},
 			wantSame:         false,
@@ -83,7 +79,7 @@ func TestDefault(t *testing.T) {
 		},
 		{
 			name:             "comparable mismatched types delegate to compare error",
-			state:            stateWithPath,
+			path:             diff.Path{diff.RootKey{}},
 			left:             1,
 			right:            "1",
 			wantSame:         false,
@@ -94,7 +90,13 @@ func TestDefault(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := diff.Default{}
-			same, err := d.Diff(tt.state, tt.left, tt.right)
+			counter := &diff.Counter{}
+			state := &diff.State{Path: tt.path, Reporter: counter}
+			if tt.nilState {
+				state = nil
+			}
+
+			same, err := d.Diff(state, tt.left, tt.right)
 
 			if same != tt.wantSame {
 				t.Fatalf("same = %v, want %v", same, tt.wantSame)
@@ -113,12 +115,8 @@ func TestDefault(t *testing.T) {
 				}
 			}
 
-			if tt.wantDifferent > 0 {
-				reporter, ok := tt.state.Reporter.(*diff.Counter)
-				if !ok {
-					t.Fatalf("expected diff.Counter in state")
-				}
-				counterEqual(t, *reporter, diff.Counter{NumDifferent: tt.wantDifferent})
+			if tt.wantCounter != nil {
+				counterEqual(t, *counter, *tt.wantCounter)
 			}
 		})
 	}

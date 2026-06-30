@@ -10,17 +10,18 @@ import (
 func TestCompare(t *testing.T) {
 	tests := []struct {
 		name          string
-		state         *diff.State
+		path          diff.Path
+		nilState      bool
 		left          any
 		right         any
 		wantSame      bool
 		wantErr       bool
 		wantErrSubstr string
-		wantDifferent int
+		wantCounter   *diff.Counter
 	}{
 		{
 			name:          "nil state returns error",
-			state:         nil,
+			nilState:      true,
 			left:          1,
 			right:         1,
 			wantSame:      false,
@@ -29,37 +30,33 @@ func TestCompare(t *testing.T) {
 		},
 		{
 			name:     "both nil are equal",
-			state:    &diff.State{},
 			left:     nil,
 			right:    nil,
 			wantSame: true,
 		},
 		{
-			name:          "one nil is treated as a difference",
-			state:         &diff.State{Reporter: &diff.Counter{}},
-			left:          nil,
-			right:         1,
-			wantSame:      false,
-			wantDifferent: 1,
+			name:        "one nil is treated as a difference",
+			left:        nil,
+			right:       1,
+			wantSame:    false,
+			wantCounter: &diff.Counter{NumDifferent: 1},
 		},
 		{
 			name:     "equal comparable values are equal",
-			state:    &diff.State{},
 			left:     1,
 			right:    1,
 			wantSame: true,
 		},
 		{
-			name:          "different comparable values report difference",
-			state:         &diff.State{Reporter: &diff.Counter{}},
-			left:          1,
-			right:         2,
-			wantSame:      false,
-			wantDifferent: 1,
+			name:        "different comparable values report difference",
+			left:        1,
+			right:       2,
+			wantSame:    false,
+			wantCounter: &diff.Counter{NumDifferent: 1},
 		},
 		{
 			name:          "mismatched comparable types return error",
-			state:         &diff.State{Path: diff.Path{diff.RootKey{}}},
+			path:          diff.Path{diff.RootKey{}},
 			left:          1,
 			right:         "1",
 			wantSame:      false,
@@ -68,7 +65,7 @@ func TestCompare(t *testing.T) {
 		},
 		{
 			name:          "non comparable type returns error",
-			state:         &diff.State{Path: diff.Path{diff.RootKey{}}},
+			path:          diff.Path{diff.RootKey{}},
 			left:          []int{1},
 			right:         []int{1},
 			wantSame:      false,
@@ -79,7 +76,13 @@ func TestCompare(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			same, err := (diff.Compare{}).Diff(tt.state, tt.left, tt.right)
+			counter := &diff.Counter{}
+			state := &diff.State{Path: tt.path, Reporter: counter}
+			if tt.nilState {
+				state = nil
+			}
+
+			same, err := (diff.Compare{}).Diff(state, tt.left, tt.right)
 
 			if same != tt.wantSame {
 				t.Fatalf("same = %v, want %v", same, tt.wantSame)
@@ -93,12 +96,8 @@ func TestCompare(t *testing.T) {
 				t.Fatalf("err = %v, want substring %q", err, tt.wantErrSubstr)
 			}
 
-			if tt.wantDifferent > 0 {
-				reporter, ok := tt.state.Reporter.(*diff.Counter)
-				if !ok {
-					t.Fatalf("expected diff.Counter in state")
-				}
-				counterEqual(t, *reporter, diff.Counter{NumDifferent: tt.wantDifferent})
+			if tt.wantCounter != nil {
+				counterEqual(t, *counter, *tt.wantCounter)
 			}
 		})
 	}
