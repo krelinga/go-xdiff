@@ -13,31 +13,18 @@ type structFixture struct {
 	hidden int
 }
 
-type stubDiffer struct {
-	called bool
-	path   diff.Path
-	same   bool
-	err    error
-}
-
-func (s *stubDiffer) Diff(state *diff.State, _, _ any) (bool, error) {
-	s.called = true
-	s.path = append(diff.Path(nil), state.Path...)
-	return s.same, s.err
-}
-
 func TestStruct(t *testing.T) {
 	tests := []struct {
 		name          string
 		differ        diff.Struct
 		path          diff.Path
-		prepare       func() *stubDiffer
+		prepare       func() *recordingDiffer
 		left          any
 		right         any
 		wantSame      bool
 		wantErrSubstr string
 		wantCounter   *diff.Counter
-		check         func(t *testing.T, stub *stubDiffer)
+		check         func(t *testing.T, recorder *recordingDiffer)
 	}{
 		{
 			name:        "default differ compares exported fields only",
@@ -52,19 +39,21 @@ func TestStruct(t *testing.T) {
 			left:     structFixture{Name: "same", Count: 1},
 			right:    structFixture{Name: "same", Count: 2},
 			wantSame: true,
-			prepare: func() *stubDiffer {
-				return &stubDiffer{same: true}
+			prepare: func() *recordingDiffer {
+				return &recordingDiffer{DelegateTo: fakeDiffer(func(_ *diff.State, _, _ any) (bool, error) {
+					return true, nil
+				})}
 			},
-			check: func(t *testing.T, stub *stubDiffer) {
-				if !stub.called {
+			check: func(t *testing.T, recorder *recordingDiffer) {
+				if !recorder.Called {
 					t.Fatalf("expected custom field differ to be called")
 				}
-				if len(stub.path) != 1 {
-					t.Fatalf("path length = %d, want 1", len(stub.path))
+				if len(recorder.Path) != 1 {
+					t.Fatalf("path length = %d, want 1", len(recorder.Path))
 				}
-				fieldKey, ok := stub.path[0].(diff.FieldKey)
+				fieldKey, ok := recorder.Path[0].(diff.FieldKey)
 				if !ok {
-					t.Fatalf("path element type = %T, want diff.FieldKey", stub.path[0])
+					t.Fatalf("path element type = %T, want diff.FieldKey", recorder.Path[0])
 				}
 				if fieldKey.Name != "Count" {
 					t.Fatalf("field key name = %q, want %q", fieldKey.Name, "Count")
@@ -92,10 +81,10 @@ func TestStruct(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var stub *stubDiffer
+			var recorder *recordingDiffer
 			if tt.prepare != nil {
-				stub = tt.prepare()
-				tt.differ = diff.Struct{Fields: map[string]diff.Differ{"Count": stub}}
+				recorder = tt.prepare()
+				tt.differ = diff.Struct{Fields: map[string]diff.Differ{"Count": recorder}}
 			}
 
 			gotCounter := &diff.Counter{}
@@ -123,7 +112,7 @@ func TestStruct(t *testing.T) {
 			}
 
 			if tt.check != nil {
-				tt.check(t, stub)
+				tt.check(t, recorder)
 			}
 		})
 	}
