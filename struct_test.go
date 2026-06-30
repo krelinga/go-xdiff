@@ -42,7 +42,7 @@ func TestStruct(t *testing.T) {
 		{
 			name:          "default differ compares exported fields only",
 			differ:        diff.Struct{},
-			state:         &diff.State{Reporter: &testReporter{}},
+			state:         &diff.State{Reporter: &diff.Counter{}},
 			left:          structFixture{Name: "same", Count: 1, hidden: 1},
 			right:         structFixture{Name: "same", Count: 2, hidden: 2},
 			wantSame:      false,
@@ -121,13 +121,11 @@ func TestStruct(t *testing.T) {
 			}
 
 			if tt.wantDifferent > 0 {
-				reporter, ok := tt.state.Reporter.(*testReporter)
+				reporter, ok := tt.state.Reporter.(*diff.Counter)
 				if !ok {
 					t.Fatalf("expected testReporter in state")
 				}
-				if reporter.different != tt.wantDifferent {
-					t.Fatalf("different = %d, want %d", reporter.different, tt.wantDifferent)
-				}
+				counterEqual(t, *reporter, diff.Counter{NumDifferent: tt.wantDifferent})
 			}
 
 			if tt.check != nil {

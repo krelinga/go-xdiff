@@ -36,7 +36,7 @@ func TestCompare(t *testing.T) {
 		},
 		{
 			name:          "one nil is treated as a difference",
-			state:         &diff.State{Reporter: &testReporter{}},
+			state:         &diff.State{Reporter: &diff.Counter{}},
 			left:          nil,
 			right:         1,
 			wantSame:      false,
@@ -51,7 +51,7 @@ func TestCompare(t *testing.T) {
 		},
 		{
 			name:          "different comparable values report difference",
-			state:         &diff.State{Reporter: &testReporter{}},
+			state:         &diff.State{Reporter: &diff.Counter{}},
 			left:          1,
 			right:         2,
 			wantSame:      false,
@@ -94,13 +94,11 @@ func TestCompare(t *testing.T) {
 			}
 
 			if tt.wantDifferent > 0 {
-				reporter, ok := tt.state.Reporter.(*testReporter)
+				reporter, ok := tt.state.Reporter.(*diff.Counter)
 				if !ok {
-					t.Fatalf("expected testReporter in state")
+					t.Fatalf("expected diff.Counter in state")
 				}
-				if reporter.different != tt.wantDifferent {
-					t.Fatalf("different = %d, want %d", reporter.different, tt.wantDifferent)
-				}
+				counterEqual(t, *reporter, diff.Counter{NumDifferent: tt.wantDifferent})
 			}
 		})
 	}

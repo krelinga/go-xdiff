@@ -7,18 +7,20 @@ import (
 	diff "github.com/krelinga/go-xdiff"
 )
 
-type testReporter struct {
-	different int
-}
-
-func (_ *testReporter) Push(_ diff.Key, _, _ any) {}
-func (_ *testReporter) Pop()                      {}
-func (_ *testReporter) LeftOnly(_ diff.Key, _ any) {
-}
-func (_ *testReporter) RightOnly(_ diff.Key, _ any) {
-}
-func (r *testReporter) Different() {
-	r.different++
+func counterEqual(t *testing.T, got diff.Counter, want diff.Counter) {
+	t.Helper()
+	if got.Total() != want.Total() {
+		t.Errorf("Total() = %d, want %d", got.Total(), want.Total())
+	}
+	if got.NumDifferent != want.NumDifferent {
+		t.Errorf("NumDifferent = %d, want %d", got.NumDifferent, want.NumDifferent)
+	}
+	if got.NumLeftOnly != want.NumLeftOnly {
+		t.Errorf("NumLeftOnly = %d, want %d", got.NumLeftOnly, want.NumLeftOnly)
+	}
+	if got.NumRightOnly != want.NumRightOnly {
+		t.Errorf("NumRightOnly = %d, want %d", got.NumRightOnly, want.NumRightOnly)
+	}
 }
 
 func TestDefault(t *testing.T) {
@@ -50,7 +52,7 @@ func TestDefault(t *testing.T) {
 		},
 		{
 			name:          "one nil is treated as a difference",
-			state:         &diff.State{Reporter: &testReporter{}, Path: stateWithPath.Path},
+			state:         &diff.State{Reporter: &diff.Counter{}, Path: stateWithPath.Path},
 			left:          nil,
 			right:         1,
 			wantSame:      false,
@@ -65,7 +67,7 @@ func TestDefault(t *testing.T) {
 		},
 		{
 			name:          "comparable values different delegates and reports",
-			state:         &diff.State{Reporter: &testReporter{}},
+			state:         &diff.State{Reporter: &diff.Counter{}},
 			left:          42,
 			right:         43,
 			wantSame:      false,
@@ -112,13 +114,11 @@ func TestDefault(t *testing.T) {
 			}
 
 			if tt.wantDifferent > 0 {
-				reporter, ok := tt.state.Reporter.(*testReporter)
+				reporter, ok := tt.state.Reporter.(*diff.Counter)
 				if !ok {
-					t.Fatalf("expected testReporter in state")
+					t.Fatalf("expected diff.Counter in state")
 				}
-				if reporter.different != tt.wantDifferent {
-					t.Fatalf("different = %d, want %d", reporter.different, tt.wantDifferent)
-				}
+				counterEqual(t, *reporter, diff.Counter{NumDifferent: tt.wantDifferent})
 			}
 		})
 	}
