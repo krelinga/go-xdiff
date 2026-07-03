@@ -93,3 +93,9 @@ func NewTransformKey(name string) TransformKey {
 		Name: name,
 	}
 }
+
+type composeKey struct {}
+
+func (_ composeKey) DiffKey() string {
+	return "compose"
+}
