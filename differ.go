@@ -95,3 +95,8 @@ type Differ interface {
 	// state will never be nil.
 	Diff(state *State, left, right any) (same bool, err error)
 }
+
+// TODO: Rename to Differ and delete the old Differ interface.
+type Differ2 interface {
+	Diff(left, right any) Plan
+}

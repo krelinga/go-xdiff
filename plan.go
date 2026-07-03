@@ -12,7 +12,7 @@ func (l Leaf) runPlan(task Task) {
 }
 
 // YieldEntry is a function that is used to yield a single matched set of entries from a branch.
-type YieldEntry = func(leftKey Key, left Entry, rightKey Key, right Entry)
+type YieldEntry = func(leftKey Key, left Entry, rightKey Key, right Entry, differ Differ2)
 
 type Branch func(YieldEntry) error
 
@@ -20,7 +20,7 @@ func (b Branch) runPlan(task Task) {
 	task.branch(b)
 }
 
-type YieldDiffer = func(Differ)
+type YieldDiffer = func(Differ2)
 
 // Compose is a Plan that allows a Differ to be implemented in terms of one or more other Differ implementations.
 type Compose func(YieldDiffer) error
@@ -30,10 +30,10 @@ func (c Compose) runPlan(task Task) {
 }
 
 // Delegate returns a Plan that replaces the current Differ with the provided Differ for the remainder of the comparison.
-func Delegate(differ Differ) Plan
+func Delegate(differ Differ2) Plan
 
 type delegateImpl struct {
-	differ Differ
+	differ Differ2
 }
 
 func (d delegateImpl) runPlan(task Task) {
