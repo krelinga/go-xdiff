@@ -20,6 +20,17 @@ func (p Path) String() string {
 	return strings.Join(parts, " > ")
 }
 
+func (p Path) Push(key Key) Path {
+	return append(p, key)
+}
+
+func (p Path) Pop() Path {
+	if len(p) == 0 {
+		panic("pop called on empty path")
+	}
+	return p[:len(p)-1]
+}
+
 func PathEqual(a, b Path) bool {
 	return slices.Equal(a, b)
 }
